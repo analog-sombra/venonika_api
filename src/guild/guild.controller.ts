@@ -17,4 +17,9 @@ export class GuildController {
   getGuildChannels(@Param('guildId') guildId: string) {
     return this.guildService.getGuildChannels(guildId);
   }
+
+  @Get('/:guildId/invite')
+  getGuildInvite(@Param('guildId') guildId: string) {
+    return this.guildService.getGuildsInvite(guildId);
+  }
 }
