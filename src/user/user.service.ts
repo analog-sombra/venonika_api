@@ -74,6 +74,10 @@ export class UserService {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
+          id: `getAllGuilds-${accessToken}`,
+          cache: {
+            ttl: 1000 * 10,
+          },
         },
       );
       return response.data;
