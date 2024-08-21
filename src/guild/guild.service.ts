@@ -85,9 +85,7 @@ export class GuildService {
             Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
           },
           id: `getGuildInvite-${guildId}`,
-          cache: {
-            ttl: 1000 * 10,
-          },
+          cache: false,
         },
       );
       return res.data;
