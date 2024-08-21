@@ -11,6 +11,7 @@ import { ResponseInterceptor } from './interceptor/responseInterceptor';
 import { AllExceptionsFilter } from './lib/allExceptionFilter';
 import { SessionModule } from './session/session.module';
 import { UserModule } from './user/user.module';
+import { ChannelModule } from './channel/channel.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserModule } from './user/user.module';
     CategoryModule,
     CommentModule,
     LikeModule,
+    ChannelModule,
   ],
   controllers: [],
   providers: [
