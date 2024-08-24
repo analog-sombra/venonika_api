@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
 import { SettleEventDto } from './dto/settle-event.dto';
 import { EventService } from './event.service';
+import { DeleteEventDto } from './dto/delete-event.dto';
 
 @Controller('event')
 export class EventController {
@@ -26,5 +35,10 @@ export class EventController {
   @Get()
   findAll(@Query() param?: FindEventDto) {
     return this.eventService.findAll(param);
+  }
+
+  @Delete()
+  delete(@Query() param?: DeleteEventDto) {
+    return this.eventService.delete(param);
   }
 }

@@ -225,4 +225,8 @@ export interface EventSchema {
   tags: string;
   scheduledStartTime: string;
   status: ScheduledEventStatus;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date;
+  deleted_by: string;
 }

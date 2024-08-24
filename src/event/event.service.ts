@@ -16,7 +16,8 @@ import { uuidv7 } from 'uuidv7';
 import { CreateEventDto } from './dto/create-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
 import { SettleEventDto } from './dto/settle-event.dto';
-import { DiscordScheduledEvent } from './entities/event.entity';
+import { DiscordScheduledEvent, EventSchema } from './entities/event.entity';
+import { DeleteEventDto } from './dto/delete-event.dto';
 
 @Injectable()
 export class EventService {
@@ -158,6 +159,7 @@ export class EventService {
         const count = await query.count();
         return Object.values(count.at(0));
       }
+      query.whereNull('deleted_at');
       const event = await query.select('*');
 
       if (!event.length) {
@@ -180,6 +182,58 @@ export class EventService {
       throw new InternalServerErrorException(
         'An error occurred while fetching categories',
       );
+    }
+  }
+
+  async delete(params: DeleteEventDto) {
+    try {
+      // If discord event to delete
+      if (params.discord == true) {
+        const response = await axios.delete(
+          `${DISCORD_BASE_URL}/guilds/${params.guildId}/scheduled-events/${params.eventId}`,
+          {
+            headers: {
+              Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+            },
+          },
+        );
+        return response.data;
+      } else {
+        console.log('running');
+        // else delete database event
+        const updatedRows = await this.knex<EventSchema>('event')
+          .update({
+            deleted_at: new Date(),
+            deleted_by: params.userId,
+          })
+          .where('eventId', params.eventId);
+
+        if (updatedRows === 0) {
+          throw new HttpException(
+            'Event not found or already deleted',
+            HttpStatus.NOT_FOUND,
+          );
+        }
+
+        return 'Event successfully marked as deleted';
+      }
+    } catch (error) {
+      // Handle specific Axios errors
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // If Discord API returned an error
+          throw new HttpException(
+            error.response.data || 'Error deleting Discord event',
+            error.response.status || HttpStatus.BAD_GATEWAY,
+          );
+        }
+        throw new HttpException(
+          'Failed to connect to Discord API',
+          HttpStatus.BAD_GATEWAY,
+        );
+      }
+
+      throw new InternalServerErrorException('Error deleting event');
     }
   }
 }
