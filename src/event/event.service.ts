@@ -121,6 +121,10 @@ export class EventService {
             Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
             'Access-Control-Allow-Origin': '*',
           },
+          id: `getUnsetteledEvent-${guildId}`,
+          cache: {
+            ttl: 1000 * 10,
+          },
         },
       );
       return response.data;
@@ -159,7 +163,6 @@ export class EventService {
         const count = await query.count();
         return Object.values(count.at(0));
       }
-      query.whereNull('deleted_at');
       const event = await query.select('*');
 
       if (!event.length) {
@@ -185,55 +188,43 @@ export class EventService {
     }
   }
 
-  async delete(params: DeleteEventDto) {
+  async deleteEvent(eventId: string) {
     try {
-      // If discord event to delete
-      if (params.discord == true) {
-        const response = await axios.delete(
-          `${DISCORD_BASE_URL}/guilds/${params.guildId}/scheduled-events/${params.eventId}`,
-          {
-            headers: {
-              Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-            },
-          },
-        );
-        return response.data;
-      } else {
-        console.log('running');
-        // else delete database event
-        const updatedRows = await this.knex<EventSchema>('event')
-          .update({
-            deleted_at: new Date(),
-            deleted_by: params.userId,
-          })
-          .where('eventId', params.eventId);
+      const updatedRows = await this.knex<EventSchema>('event')
+        .where('eventId', eventId)
+        .delete();
 
-        if (updatedRows === 0) {
-          throw new HttpException(
-            'Event not found or already deleted',
-            HttpStatus.NOT_FOUND,
-          );
-        }
-
-        return 'Event successfully marked as deleted';
-      }
-    } catch (error) {
-      // Handle specific Axios errors
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          // If Discord API returned an error
-          throw new HttpException(
-            error.response.data || 'Error deleting Discord event',
-            error.response.status || HttpStatus.BAD_GATEWAY,
-          );
-        }
+      if (updatedRows === 0) {
         throw new HttpException(
-          'Failed to connect to Discord API',
-          HttpStatus.BAD_GATEWAY,
+          'Event not found or already deleted',
+          HttpStatus.NOT_FOUND,
         );
       }
 
+      return 'Event successfully marked as deleted';
+    } catch (error) {
       throw new InternalServerErrorException('Error deleting event');
+    }
+  }
+
+  async deleteDiscordEvent(params: DeleteEventDto) {
+    try {
+      await axios.delete(
+        `${DISCORD_BASE_URL}/guilds/${params.guildId}/scheduled-events/${params.eventId}`,
+        {
+          headers: {
+            Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+          },
+        },
+      );
+
+      return 'successfully deleted evet';
+    } catch (error) {
+      // You might want to throw a NestJS HttpException
+      throw new HttpException(
+        'Failed to delete Discord event',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

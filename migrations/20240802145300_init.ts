@@ -139,11 +139,11 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   await knex.schema
-    .dropTable('account')
+    .dropTable('featured_event')
     .dropTable('session')
-    .dropTable('event')
-    .dropTable('comment')
-    .dropTable('like')
+    .dropTable('event_comment')
+    .dropTable('event_like')
     .dropTable('category')
+    .dropTable('event')
     .dropTable('user');
 }

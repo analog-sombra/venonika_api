@@ -37,8 +37,13 @@ export class EventController {
     return this.eventService.findAll(param);
   }
 
-  @Delete()
-  delete(@Query() param?: DeleteEventDto) {
-    return this.eventService.delete(param);
+  @Delete('/discord')
+  deleteDiscordEvent(@Query() param?: DeleteEventDto) {
+    return this.eventService.deleteDiscordEvent(param);
+  }
+
+  @Delete(':eventId')
+  delete(@Param('eventId') eventId: string) {
+    return this.eventService.deleteEvent(eventId);
   }
 }

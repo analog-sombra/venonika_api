@@ -45,8 +45,30 @@ export class UserService {
   async findOne(userId: string) {
     try {
       const user = await this.knex<UserSchema>('user')
-        .where('id', userId)
+        .where('user_id', userId)
         .first();
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      // Re-throw specific exceptions
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      // Throw a generic internal server error for unexpected issues
+      throw new InternalServerErrorException(
+        'An error occurred while finding the user',
+      );
+    }
+  }
+
+  async findOneById(id: string) {
+    try {
+      const user = await this.knex<UserSchema>('user').where('id', id).first();
 
       if (!user) {
         throw new NotFoundException('User not found');
