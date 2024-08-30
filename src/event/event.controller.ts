@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -12,6 +13,7 @@ import { FindEventDto } from './dto/find-event.dto';
 import { SettleEventDto } from './dto/settle-event.dto';
 import { EventService } from './event.service';
 import { DeleteEventDto } from './dto/delete-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
 
 @Controller('event')
 export class EventController {
@@ -45,5 +47,13 @@ export class EventController {
   @Delete(':eventId')
   delete(@Param('eventId') eventId: string) {
     return this.eventService.deleteEvent(eventId);
+  }
+
+  @Put('/:eventId')
+  updateDiscordEvent(
+    @Param('eventId') eventId: string,
+    @Body() discordEvent: UpdateEventDto,
+  ) {
+    return this.eventService.updateDiscordEvent(eventId, discordEvent);
   }
 }

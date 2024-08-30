@@ -16,8 +16,13 @@ import { uuidv7 } from 'uuidv7';
 import { CreateEventDto } from './dto/create-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
 import { SettleEventDto } from './dto/settle-event.dto';
-import { DiscordScheduledEvent, EventSchema } from './entities/event.entity';
+import {
+  DiscordScheduledEvent,
+  EventSchema,
+  ScheduledEventEntityType,
+} from './entities/event.entity';
 import { DeleteEventDto } from './dto/delete-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
 
 @Injectable()
 export class EventService {
@@ -222,7 +227,99 @@ export class EventService {
     } catch (error) {
       // You might want to throw a NestJS HttpException
       throw new HttpException(
-        'Failed to delete Discord event',
+        errorToString(error) ?? 'Failed to delete Discord event',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateDiscordEvent(eventId: string, event: UpdateEventDto) {
+    try {
+      if (!event.guildId) throw new Error('Provide Guild Id to update event');
+
+      const updateEventData: Partial<DiscordScheduledEvent> = {};
+
+      if (event.entityType) {
+        updateEventData.entity_type =
+          event.entityType == '1'
+            ? ScheduledEventEntityType.VOICE
+            : ScheduledEventEntityType.STAGE_INSTANCE;
+      }
+
+      if (event.channelId) {
+        // updateEventData.channel_id = event.channelId;
+        updateEventData.channel_id = event.channelId;
+      }
+
+      if (event.description) {
+        updateEventData.description = event.description;
+      }
+
+      if (event.name) {
+        updateEventData.name = event.name;
+      }
+
+      if (event.scheduledStartTime) {
+        updateEventData.scheduled_start_time = new Date(
+          event.scheduledStartTime,
+        );
+      }
+      if (event.imageUrl) {
+        updateEventData.image = event.imageUrl;
+      }
+
+      if (event.entityType) {
+        updateEventData.entity_type =
+          event.entityType == '2'
+            ? ScheduledEventEntityType.VOICE
+            : ScheduledEventEntityType.STAGE_INSTANCE;
+      }
+      const res = await axios.patch(
+        `${DISCORD_BASE_URL}/guilds/${event.guildId}/scheduled-events/${eventId}`,
+        {
+          ...updateEventData,
+        },
+        {
+          headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
+        },
+      );
+
+      // If failed to update discord event
+      if (!res.data)
+        throw new Error('Error updating discord event. Check perms');
+
+      const updatedEvent: DiscordScheduledEvent = res.data;
+      const dbEventData: Partial<EventSchema> = {
+        name: updatedEvent.name,
+        description: updateEventData.description,
+        channelId: updateEventData.channel_id,
+        imageUrl: updatedEvent.image,
+        scheduledStartTime: new Date(updatedEvent.scheduled_start_time)
+          .toISOString()
+          .slice(0, 19)
+          .replace('T', ' '),
+        entityType:
+          updateEventData.entity_type == 2 ? 'VOICE' : 'STAGE_INSTANCE',
+      };
+
+      if (event.eventCategory) {
+        dbEventData.category = event.eventCategory;
+      }
+
+      if (event.tags) {
+        dbEventData.tags = event.tags;
+      }
+
+      // update event in databse
+      await this.knex<EventSchema>('event')
+        .update({ ...dbEventData })
+        .where('eventId', '=', eventId);
+
+      return 'success';
+    } catch (error) {
+      // You might want to throw a NestJS HttpException
+      throw new HttpException(
+        errorToString(error) ?? 'Failed to delete Discord event',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

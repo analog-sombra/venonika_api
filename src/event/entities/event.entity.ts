@@ -225,6 +225,8 @@ export interface EventSchema {
   tags: string;
   scheduledStartTime: string;
   status: ScheduledEventStatus;
+  category: string;
+  entityType: string;
   created_at: Date;
   updated_at: Date;
   deleted_at: Date;
