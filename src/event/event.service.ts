@@ -324,4 +324,22 @@ export class EventService {
       );
     }
   }
+
+  async updateEventGateway(event: DiscordScheduledEvent) {
+    try {
+      await this.knex<EventSchema>('event').update({
+        name: event.name,
+        description: event.description,
+        scheduledStartTime: new Date((event as any).scheduledStartTimestamp)
+          .toISOString()
+          .slice(0, 19)
+          .replace('T', ' '),
+        status: event.status,
+        entityType: event.entity_type == 2 ? 'VOICE' : 'STAGE_INSTANCE',
+        imageUrl: event.image,
+      });
+    } catch (error) {
+      console.error('Error updating event in database:', error);
+    }
+  }
 }
