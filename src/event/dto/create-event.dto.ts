@@ -1,4 +1,4 @@
-import { IsNumberString, IsString } from 'class-validator';
+import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
@@ -30,4 +30,8 @@ export class CreateEventDto {
 
   @IsNumberString()
   entityType: string;
+
+  @IsString()
+  @IsOptional()
+  longDescription: string;
 }

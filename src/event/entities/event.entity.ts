@@ -220,6 +220,7 @@ export interface EventSchema {
   channelId: string;
   name: string;
   description: string;
+  longDescription: string;
   creatorId: string;
   imageUrl: string;
   tags: string;

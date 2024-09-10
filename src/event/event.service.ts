@@ -63,6 +63,7 @@ export class EventService {
         entityType: eventData.entity_type,
         tags: createEventDto.tags,
         category: createEventDto.eventCategory,
+        longDescription: createEventDto.longDescription,
       });
 
       return eventData;
@@ -100,6 +101,7 @@ export class EventService {
         entityType: eventData.entityType,
         tags: eventData.tags,
         category: eventData.eventCategory,
+        longDescription: eventData.longDescription,
       });
       return 'Event created Successfully';
     } catch (error) {
@@ -290,6 +292,7 @@ export class EventService {
 
       const updatedEvent: DiscordScheduledEvent = res.data;
       const dbEventData: Partial<EventSchema> = {
+        longDescription: event.longDescription,
         name: updatedEvent.name,
         description: updateEventData.description,
         channelId: updateEventData.channel_id,
