@@ -12,6 +12,7 @@ import { AllExceptionsFilter } from './lib/allExceptionFilter';
 import { SessionModule } from './session/session.module';
 import { UserModule } from './user/user.module';
 import { ChannelModule } from './channel/channel.module';
+import { ScrimModule } from './scrim/scrim.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ChannelModule } from './channel/channel.module';
     CommentModule,
     LikeModule,
     ChannelModule,
+    ScrimModule,
   ],
   controllers: [],
   providers: [

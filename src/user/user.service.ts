@@ -110,6 +110,9 @@ export class UserService {
           error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
         );
       } else {
+        if (error instanceof NotFoundException) {
+          throw error;
+        }
         throw new HttpException(
           'Unexpected error occurred',
           HttpStatus.INTERNAL_SERVER_ERROR,

@@ -17,7 +17,7 @@ export interface DiscordInviteSchema {
   guild_scheduled_event: DiscordScheduledEvent;
 }
 
-export class GuildSchema {
+export class DiscordGuildSchema {
   id: string; // Snowflake identifier
   name: string;
   icon: string | null;
@@ -140,3 +140,10 @@ export interface RoleTags {
   integration_id?: string;
   premium_subscriber?: null;
 }
+
+export type GuildSchema = {
+  id: string;
+  scrimLogChannel?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};

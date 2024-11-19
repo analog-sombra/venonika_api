@@ -37,12 +37,12 @@ export class FindEventDto {
   limit: number;
 
   @IsOptional()
-  @IsBooleanString()
-  featured: boolean;
-
-  @IsOptional()
   @IsNumberString()
   offset: number;
+
+  @IsOptional()
+  @IsBooleanString()
+  featured: boolean;
 
   @IsOptional()
   @IsString()
